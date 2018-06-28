@@ -47,8 +47,12 @@ parts:
     source-type: git
     source-tag: QUAKE2_7_20
     plugin: cmake
-    configflags:
-      - -DCMAKE_INSTALL_PREFIX=/usr
+    override-build: |
+      mkdir build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=
+      make -j4
+      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      mv release/* $SNAPCRAFT_PART_INSTALL/bin/
     build-packages:
       - make
       - build-essential
