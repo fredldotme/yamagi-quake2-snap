@@ -1,5 +1,5 @@
 #!/bin/bash
-# if "$SNAP/quake-engine" exists we can expect this to run
+# if "$SNAP/quake2-engine" exists we can expect this to run
 # as a content snap within, say, a Quake map editor.
 # On the confinement side the script runs within the parents sandbox.
 
@@ -10,7 +10,7 @@ if [ -d "$SNAP/quake2-engine" ]; then
 fi
 
 # use zenity dialog when started without arguments
-if [ "$@" == "" ]; then
+if [[ "$@" == "" ]]; then
     GAMEFILES_PATH=`zenity \
       --file-selection \
       --directory \
