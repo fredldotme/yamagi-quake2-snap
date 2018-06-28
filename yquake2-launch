@@ -9,11 +9,6 @@ if [ -d "$SNAP/quake2-engine" ]; then
     export SNAP="${SNAP}/quake2-engine"
 fi
 
-export PATH="$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib:$SNAP/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/mesa-egl"
-export LD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH
-
 # use zenity dialog when started without arguments
 if [ "$@" == "" ]; then
     GAMEFILES_PATH=`zenity \
@@ -24,7 +19,7 @@ if [ "$@" == "" ]; then
     # We actually need the parent directory
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
     export GAMEFILES_PATH
-    exec "$QUAKE_ENGINE" "GAMEFILES_PATH"
+    exec "desktop-launch" "$SNAP/bin/$QUAKE_ENGINE" "GAMEFILES_PATH"
 else
-    exec "$QUAKE_ENGINE" "$@"
+    exec "desktop-launch" "$SNAP/bin/$QUAKE_ENGINE" "$@"
 fi
