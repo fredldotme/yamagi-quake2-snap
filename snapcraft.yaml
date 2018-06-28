@@ -42,7 +42,7 @@ slots:
       - $SNAP
 
 parts:
-  yquake2:
+  quake2:
     source: https://github.com/yquake2/yquake2.git
     source-type: git
     source-tag: QUAKE2_7_20
@@ -89,4 +89,4 @@ parts:
     plugin: dump
     organize:
       yquake2-launch: bin/yquake2-launch
-    after: [ yquake2 ]
+    after: [ quake2 ]
