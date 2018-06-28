@@ -3,7 +3,7 @@
 # as a content snap within, say, a Quake map editor.
 # On the confinement side the script runs within the parents sandbox.
 
-QUAKE_ENGINE=quake2
+QUAKE_ENGINE=yquake2
 
 if [ -d "$SNAP/quake2-engine" ]; then
     export SNAP="${SNAP}/quake2-engine"
@@ -19,7 +19,7 @@ if [[ "$@" == "" ]]; then
     # We actually need the parent directory
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
     export GAMEFILES_PATH
-    exec "desktop-launch" "$SNAP/bin/$QUAKE_ENGINE" "GAMEFILES_PATH"
+    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "GAMEFILES_PATH"
 else
-    exec "desktop-launch" "$SNAP/bin/$QUAKE_ENGINE" "$@"
+    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "$@"
 fi
