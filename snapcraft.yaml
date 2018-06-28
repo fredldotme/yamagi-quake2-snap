@@ -47,6 +47,8 @@ parts:
     source-type: git
     source-tag: QUAKE2_7_20
     plugin: cmake
+    configflags:
+      - -DCMAKE_INSTALL_PREFIX=/usr
     build-packages:
       - make
       - build-essential
