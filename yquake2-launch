@@ -31,4 +31,5 @@ if [ "$GAMEFILES_PATH" == "" ]; then
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
 fi
 
+export GAMEFILES_PATH
 exec "desktop-launch" "$QUAKE_ENGINE" "GAMEFILES_PATH"
