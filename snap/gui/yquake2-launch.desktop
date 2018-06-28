@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Yamagi Quake II
+Comment=An enhanced version of id Software's Quake II.
+Icon=${SNAP}/snap/gui/quake2.svg
+Exec=yamagi-quake2.yquake2-launch
+Categories=Game;ActionGame;
+Keywords=first;person;shooter;quake;

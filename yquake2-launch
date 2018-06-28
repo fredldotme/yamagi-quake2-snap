@@ -1,0 +1,34 @@
+#!/bin/bash
+# if "$SNAP/quake-engine" exists we can expect this to run
+# as a content snap within, say, a Quake map editor.
+# On the confinement side the script runs within the parents sandbox.
+
+QUAKE_ENGINE=quake2
+
+if [ -d "$SNAP/quake2-engine" ]; then
+    export SNAP="${SNAP}/quake2-engine"
+fi
+
+export PATH="$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib:$SNAP/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/mesa-egl"
+export LD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH
+
+GAMEFILES_PATH=""
+# if baseq2 exists in current directory use $PWD
+if [ -d "$PWD/baseq2" ]; then
+    GAMEFILES_PATH="$PWD"
+fi
+
+# if GAMEFILES_PATH is still empty use zenity dialog
+if [ "$GAMEFILES_PATH" == "" ]; then
+    GAMEFILES_PATH=`zenity \
+      --file-selection \
+      --directory \
+      --title='Select the baseq2 directory containing Quake game files (pak0.pak, pak1.pak ...)'`
+    
+    # We actually need the parent directory
+    GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
+fi
+
+exec "desktop-launch" "$QUAKE_ENGINE" "GAMEFILES_PATH"
