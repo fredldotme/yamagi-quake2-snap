@@ -51,7 +51,7 @@ parts:
       mkdir build && cd build
       cmake .. -DCMAKE_INSTALL_PREFIX=
       make -j4
-      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       mv release/* $SNAPCRAFT_PART_INSTALL/bin/
     build-packages:
       - make
