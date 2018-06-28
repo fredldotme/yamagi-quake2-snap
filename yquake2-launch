@@ -14,22 +14,17 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib:$SNAP/lib/x86_6
 export LD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH
 
-GAMEFILES_PATH=""
-# if baseq2 exists in current directory use $PWD
-if [ -d "$PWD/baseq2" ]; then
-    GAMEFILES_PATH="$PWD"
-fi
-
-# if GAMEFILES_PATH is still empty use zenity dialog
-if [ "$GAMEFILES_PATH" == "" ]; then
+# use zenity dialog when started without arguments
+if [ "$@" == "" ]; then
     GAMEFILES_PATH=`zenity \
       --file-selection \
       --directory \
-      --title='Select the baseq2 directory containing Quake game files (pak0.pak, pak1.pak ...)'`
+      --title='Select the baseq2 directory containing Quake 2 game files (pak0.pak, pak1.pak ...)'`
     
     # We actually need the parent directory
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
+    export GAMEFILES_PATH
+    exec "$QUAKE_ENGINE" "GAMEFILES_PATH"
+else
+    exec "$QUAKE_ENGINE" "$@"
 fi
-
-export GAMEFILES_PATH
-exec "desktop-launch" "$QUAKE_ENGINE" "GAMEFILES_PATH"
