@@ -1,4 +1,4 @@
-name: yamagi-quake2
+name: yamagi-quake2-beidl
 version: 7.20
 grade: stable
 summary: An enhanced version of id Software's Quake II.
@@ -15,14 +15,14 @@ description: |
     content: quake2-engine
     interface: content
     target: $SNAP/quake2-engine
-    default-provider: yamagi-quake2:quake2-engine
+    default-provider: yamagi-quake2-beidl:quake2-engine
    
   Within the consuming snap the content would be exposed at "$SNAP/quake2-engine", ie:
      /snap/the-consuming-snap/current/quake2-engine
      /var/lib/snapd/snap/the-consuming-snap/current/quake2-engine
    
    Under certain circumstances it could be necessary to manually connect the interface, ie:
-     snap connect the-consuming-snap:quake2-engine yamagi-quake2:quake2-engine
+     snap connect the-consuming-snap:quake2-engine yamagi-quake2-beidl:quake2-engine
   
 confinement: strict
 
