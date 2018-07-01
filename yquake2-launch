@@ -10,7 +10,7 @@ if [ -d "$SNAP/quake2-engine" ]; then
 fi
 
 # use zenity dialog when started without arguments
-if [[ "$@" == "" ]]; then
+if [ "x$@" == "x" ]; then
     GAMEFILES_PATH=`zenity \
       --file-selection \
       --directory \
@@ -18,8 +18,7 @@ if [[ "$@" == "" ]]; then
     
     # We actually need the parent directory
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
-    export GAMEFILES_PATH
-    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "GAMEFILES_PATH"
+    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "-datadir" "$GAMEFILES_PATH"
 else
     exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "$@"
 fi
