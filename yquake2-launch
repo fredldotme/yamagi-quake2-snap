@@ -1,34 +1,65 @@
 #!/bin/bash
-# if "$SNAP/quake2-engine" exists we can expect this to run
-# as a content snap within, say, a Quake map editor.
-# On the confinement side the script runs within the parents sandbox.
 
 QUAKE_ENGINE=yquake2
+QUAKE_TITLE="Quake 2"
 BASEDIR=baseq2
+CONTENT_SNAP_DIR=quake2-engine
 
-if [ -d "$SNAP/quake2-engine" ]; then
-    export SNAP="${SNAP}/quake2-engine"
+# if "$SNAP/$CONTENT_SNAP_DIR" exists we can expect this to run
+# as a content snap within, say, a Quake map editor.
+# On the confinement side the script runs within the parents sandbox.
+if [ -d "$SNAP/${CONTENT_SNAP_DIR}" ]; then
+    export SNAP="${SNAP}/${CONTENT_SNAP_DIR}"
 fi
+
+function get_gamefiles_path()
+{
+    local NEWPATH="$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
+    local NEWLD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib:$SNAP/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/mesa-egl"
+    local NEWLD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+    local NEWLD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH
+    
+    local SELECTED_PATH=`PATH=$NEWPATH LD_LIBRARY_PATH=$NEWLD_LIBRARY_PATH \
+            $SNAP/usr/bin/zenity \
+            --file-selection \
+            --directory \
+            --title="Select the $BASEDIR directory containing $QUAKE_TITLE game files (pak0.pak, pak1.pak ...)"`
+    
+    EXITCODE=$?
+    eval "$1=\"$SELECTED_PATH\""
+    return $EXITCODE
+}
+
+GAMEFILES_PATH=""
 
 # use zenity dialog when started without arguments
 if [ "x$@" == "x" ]; then
     DIALOG_DONE=0
+    BAILOUT=0
     while [ $DIALOG_DONE == 0 ]; do
-        GAMEFILES_PATH=`zenity \
-            --file-selection \
-            --directory \
-            --title='Select the baseq2 directory containing Quake 2 game files (pak0.pak, pak1.pak ...)'`
+        get_gamefiles_path GAMEFILES_PATH
+        ZENITY_EXIT_CODE=$?
+        if [ $ZENITY_EXIT_CODE != 0 ] && [ $ZENITY_EXIT_CODE != 1 ]; then
+            DIALOG_DONE=1
+            BAILOUT=1
+        fi
 
         if [ "$GAMEFILES_PATH" == "" ]; then
-            exit 1
+            DIALOG_DONE=1
+            BAILOUT=1
         fi
         if [ "$GAMEFILES_PATH" != "" ] && [ $(basename "$GAMEFILES_PATH") == "$BASEDIR" ]; then
             DIALOG_DONE=1
         fi
     done
     
-    # We actually need the parent directory
-    GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
+    if [ $BAILOUT == 0 ]; then
+        # We actually need the parent directory
+        GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
+    fi
+fi
+
+if [ "x$GAMEFILES_PATH" != "x" ]; then
     exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "-datadir" "$GAMEFILES_PATH"
 else
     exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "$@"
