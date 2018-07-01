@@ -16,8 +16,8 @@ function get_gamefiles_path()
 {
     local NEWPATH="$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
     local NEWLD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/lib:$SNAP/usr/lib:$SNAP/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/mesa-egl"
-    local NEWLD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
-    local NEWLD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$LD_LIBRARY_PATH
+    local NEWLD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$NEWLD_LIBRARY_PATH"
+    local NEWLD_LIBRARY_PATH=$SNAP_LIBRARY_PATH:$NEWLD_LIBRARY_PATH
     
     local SELECTED_PATH=`PATH=$NEWPATH LD_LIBRARY_PATH=$NEWLD_LIBRARY_PATH \
             $SNAP/usr/bin/zenity \
