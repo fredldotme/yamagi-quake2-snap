@@ -4,6 +4,7 @@
 # On the confinement side the script runs within the parents sandbox.
 
 QUAKE_ENGINE=yquake2
+BASEDIR=baseq2
 
 if [ -d "$SNAP/quake2-engine" ]; then
     export SNAP="${SNAP}/quake2-engine"
@@ -11,10 +12,20 @@ fi
 
 # use zenity dialog when started without arguments
 if [ "x$@" == "x" ]; then
-    GAMEFILES_PATH=`zenity \
-      --file-selection \
-      --directory \
-      --title='Select the baseq2 directory containing Quake 2 game files (pak0.pak, pak1.pak ...)'`
+    DIALOG_DONE=0
+    while [ $DIALOG_DONE == 0 ]; do
+        GAMEFILES_PATH=`zenity \
+            --file-selection \
+            --directory \
+            --title='Select the baseq2 directory containing Quake 2 game files (pak0.pak, pak1.pak ...)'`
+
+        if [ "$GAMEFILES_PATH" == "" ]; then
+            exit 1
+        fi
+        if [ "$GAMEFILES_PATH" != "" ] && [ $(basename "$GAMEFILES_PATH") == "$BASEDIR" ]; then
+            DIALOG_DONE=1
+        fi
+    done
     
     # We actually need the parent directory
     GAMEFILES_PATH=$(dirname "${GAMEFILES_PATH}")
