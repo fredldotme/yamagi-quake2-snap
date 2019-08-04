@@ -1,5 +1,5 @@
 name: yamagi-quake2-beidl
-version: 7.20
+version: 7.20.0
 grade: stable
 summary: An enhanced version of id Software's Quake II.
 description: |
@@ -28,6 +28,7 @@ description: |
     snap connect the-consuming-snap:quake2-engine yamagi-quake2-beidl:quake2-engine
   
 confinement: strict
+base: core
 architectures:
   - build-on: amd64
     run-on: amd64
@@ -64,7 +65,7 @@ parts:
     plugin: cmake
     override-build: |
       mkdir build && cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=
+      cmake ../../quake2/src -DCMAKE_INSTALL_PREFIX=
       make -j4
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       mv release/* $SNAPCRAFT_PART_INSTALL/bin/
@@ -102,6 +103,14 @@ parts:
       - lib/
       - usr/
     after: [ desktop-glib-only ]
+  desktop-glib-only:
+    build-packages:
+      - libglib2.0-dev
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    stage-packages:
+      - libglib2.0-bin
   wrapper:
     source: .
     plugin: dump
