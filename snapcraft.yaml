@@ -65,13 +65,14 @@ parts:
     plugin: cmake
     override-build: |
       mkdir build && cd build
-      cmake ../../quake2/src -DCMAKE_INSTALL_PREFIX=
+      cmake $SNAPCRAFT_PART_SRC -DCMAKE_INSTALL_PREFIX=
       make -j4
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       mv release/* $SNAPCRAFT_PART_INSTALL/bin/
     build-packages:
       - make
       - build-essential
+      - libcurl4-gnutls-dev
       - libgl1-mesa-dev
       - libsdl2-dev
       - libsdl2-image-dev
