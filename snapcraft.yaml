@@ -1,5 +1,5 @@
 name: yamagi-quake2-beidl
-version: 7.20.0
+version: 7.41.0
 grade: stable
 summary: An enhanced version of id Software's Quake II.
 description: |
@@ -61,7 +61,7 @@ parts:
   quake2:
     source: https://github.com/yquake2/yquake2.git
     source-type: git
-    source-tag: QUAKE2_7_20
+    source-tag: QUAKE2_7_41
     plugin: cmake
     override-build: |
       mkdir build && cd build
