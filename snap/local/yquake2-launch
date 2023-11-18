@@ -60,7 +60,7 @@ if [ "x$@" == "x" ]; then
 fi
 
 if [ "x$GAMEFILES_PATH" != "x" ]; then
-    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "-datadir" "$GAMEFILES_PATH"
+    exec "$SNAP/bin/quake2" "-datadir" "$GAMEFILES_PATH"
 else
-    exec "$SNAP/command-$QUAKE_ENGINE.wrapper" "$@"
+    exec "$SNAP/bin/quake2" "$@"
 fi

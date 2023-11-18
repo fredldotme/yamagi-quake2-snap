@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Yamagi Quake II (GLES3 Renderer)
+Comment=An enhanced version of id Software's Quake II.
+Icon=${SNAP}/snap/gui/quake2.svg
+Exec=yamagi-quake2-beidl.yquake2-gles3-launch
+Categories=Game;ActionGame;
+Keywords=first;person;shooter;quake;

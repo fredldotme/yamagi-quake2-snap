@@ -1,5 +1,5 @@
 name: yamagi-quake2-beidl
-version: 7.41.0
+version: 8.30.0
 grade: stable
 summary: An enhanced version of id Software's Quake II.
 description: |
@@ -28,26 +28,50 @@ description: |
     snap connect the-consuming-snap:quake2-engine yamagi-quake2-beidl:quake2-engine
   
 confinement: strict
-base: core
+base: core22
 architectures:
   - build-on: amd64
-    run-on: amd64
-    
-  - build-on: i386
-    run-on: i386
-
   - build-on: armhf
-    run-on: armhf
-    
   - build-on: arm64
-    run-on: arm64
 
 apps:
   yquake2:
-    command: desktop-launch quake2
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+    command-chain:
+    - bin/wayland-launch
+    - bin/graphics-core22-wrapper
+    command: bin/quake2
+    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+  yquake2-gles3:
+    environment:
+      QUAKE2_LAUNCHFLAGS: +set vid_renderer gles3
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+    command-chain:
+    - bin/wayland-launch
+    - bin/graphics-core22-wrapper
+    command: bin/quake2
     plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
   yquake2-launch:
-    command: desktop-launch yquake2-launch
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+    command-chain:
+    - bin/wayland-launch
+    - bin/graphics-core22-wrapper
+    command: bin/yquake2-launch
+    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+  yquake2-gles3-launch:
+    environment:
+      QUAKE2_LAUNCHFLAGS: +set vid_renderer gles3
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+    command-chain:
+    - bin/wayland-launch
+    - bin/graphics-core22-wrapper
+    command: bin/yquake2-launch
     plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
 
 slots:
@@ -57,11 +81,29 @@ slots:
     read:
       - $SNAP
 
+plugs:
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core22
+
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/graphics/libdrm
+  /usr/share/drirc.d:
+    symlink: $SNAP/graphics/drirc.d
+  /usr/share/X11/XErrorDB:
+    symlink: $SNAP/graphics/X11/XErrorDB
+  /usr/share/X11/locale:
+    symlink: $SNAP/graphics/X11/locale
+  /usr/share/X11/xkb:
+    symlink: $SNAP/graphics/X11/xkb
+
 parts:
   quake2:
     source: https://github.com/yquake2/yquake2.git
     source-type: git
-    source-tag: QUAKE2_7_41
+    source-tag: QUAKE2_8_30
     plugin: cmake
     override-build: |
       mkdir build && cd build
@@ -103,18 +145,31 @@ parts:
       - bin/
       - lib/
       - usr/
-    after: [ desktop-glib-only ]
-  desktop-glib-only:
-    build-packages:
-      - libglib2.0-dev
-    plugin: make
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: glib-only
-    stage-packages:
-      - libglib2.0-bin
   wrapper:
-    source: .
+    source: snap/local
     plugin: dump
+    override-build: |
+      # The plugs needed to run Wayland. (wayland-launch checks them, setup.sh connects them)
+      # You may add further plugs here if you want these options
+      PLUGS="opengl wayland graphics-core22"
+      sed --in-place "s/%PLUGS%/$PLUGS/g" $SNAPCRAFT_PART_BUILD/wayland-launch
+      sed --in-place "s/%PLUGS%/$PLUGS/g" $SNAPCRAFT_PART_BUILD/setup.sh
+      sed --in-place "s/%SNAP%/$SNAPCRAFT_PROJECT_NAME/g" $SNAPCRAFT_PART_BUILD/wayland-launch
+      sed --in-place "s/%SNAP%/$SNAPCRAFT_PROJECT_NAME/g" $SNAPCRAFT_PART_BUILD/setup.sh
+      snapcraftctl build
+    stage-packages:
+      - inotify-tools
     organize:
       yquake2-launch: bin/yquake2-launch
+      wayland-launch: bin/wayland-launch
+      setup.sh: bin/setup.sh
     after: [ quake2 ]
+  graphics-core22:
+    after: [ wrapper ]
+    source: https://github.com/MirServer/graphics-core22.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/graphics-core22-cleanup mesa-core22 nvidia-core22
+    prime:
+    - bin/graphics-core22-wrapper
