@@ -73,6 +73,12 @@ apps:
     - bin/graphics-core22-wrapper
     command: bin/yquake2-launch
     plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+  q2ded:
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+    command: bin/q2ded
+    plugs: [ home, removable-media, network, network-bind ]
 
 slots:
   quake2-engine:
