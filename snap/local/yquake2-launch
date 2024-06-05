@@ -59,6 +59,11 @@ if [ "x$@" == "x" ]; then
     fi
 fi
 
+if [ ! -e "$XDG_RUNTIME_DIR/pulse/native" ]; then
+    mkdir -p XDG_RUNTIME_DIR/pulse
+    ln -sf ../../pulse/native $XDG_RUNTIME_DIR/pulse/native
+fi
+
 if [ "x$GAMEFILES_PATH" != "x" ]; then
     exec "$SNAP/bin/quake2" "-datadir" "$GAMEFILES_PATH"
 else

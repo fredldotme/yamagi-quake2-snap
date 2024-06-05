@@ -43,7 +43,7 @@ apps:
     - bin/wayland-launch
     - bin/graphics-core22-wrapper
     command: bin/quake2
-    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+    plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-gles3:
     environment:
       QUAKE2_LAUNCHFLAGS: +set vid_renderer gles3
@@ -53,7 +53,7 @@ apps:
     - bin/wayland-launch
     - bin/graphics-core22-wrapper
     command: bin/quake2
-    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+    plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-launch:
     environment:
       LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
@@ -62,7 +62,7 @@ apps:
     - bin/wayland-launch
     - bin/graphics-core22-wrapper
     command: bin/yquake2-launch
-    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+    plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-gles3-launch:
     environment:
       QUAKE2_LAUNCHFLAGS: +set vid_renderer gles3
@@ -72,7 +72,7 @@ apps:
     - bin/wayland-launch
     - bin/graphics-core22-wrapper
     command: bin/yquake2-launch
-    plugs: [ wayland, x11, desktop, home, opengl, pulseaudio, removable-media, network, joystick ]
+    plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   q2ded:
     environment:
       LD_LIBRARY_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET
@@ -104,6 +104,12 @@ layout:
     symlink: $SNAP/graphics/X11/locale
   /usr/share/X11/xkb:
     symlink: $SNAP/graphics/X11/xkb
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+  /etc/alsa:
+    bind: $SNAP/etc/alsa
+  /etc/openal:
+    bind: $SNAP/etc/openal
 
 parts:
   quake2:
@@ -117,6 +123,11 @@ parts:
       make -j4
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       mv release/* $SNAPCRAFT_PART_INSTALL/bin/
+    override-prime: |
+      craftctl default
+      mv $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf.bak
+      rm $CRAFT_PRIME/etc/alsa/conf.d/*.conf
+      mv $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf.bak $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf
     build-packages:
       - make
       - build-essential
@@ -139,18 +150,22 @@ parts:
       - libsdl2-image-2.0-0
       - libsdl2-mixer-2.0-0
       - libsdl2-net-2.0-0
+      - libasound2
+      - libasound2-plugins
       - libpulse0
       - libvorbis0a
       - libmad0
       - libwayland-client0
       - libogg0
       - libopenal1
+      - libopenal-data
       - zlib1g
       - zenity
     prime:
       - bin/
       - lib/
       - usr/
+      - etc/
   wrapper:
     source: snap/local
     plugin: dump
