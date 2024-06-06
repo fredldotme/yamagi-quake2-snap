@@ -60,7 +60,7 @@ if [ "x$@" == "x" ]; then
 fi
 
 if [ ! -e "$XDG_RUNTIME_DIR/pulse/native" ]; then
-    mkdir -p XDG_RUNTIME_DIR/pulse
+    mkdir -p $XDG_RUNTIME_DIR/pulse
     ln -sf ../../pulse/native $XDG_RUNTIME_DIR/pulse/native
 fi
 
