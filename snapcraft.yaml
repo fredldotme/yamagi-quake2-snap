@@ -1,5 +1,5 @@
 name: yamagi-quake2-beidl
-version: 8.30.0
+version: 8.41
 grade: stable
 summary: An enhanced version of id Software's Quake II.
 description: |
@@ -28,11 +28,11 @@ description: |
     snap connect the-consuming-snap:quake2-engine yamagi-quake2-beidl:quake2-engine
   
 confinement: strict
-base: core22
-architectures:
-  - build-on: amd64
-  - build-on: armhf
-  - build-on: arm64
+base: core24
+platforms:
+  amd64:
+  arm64:
+  armhf:
 
 apps:
   yquake2:
@@ -41,7 +41,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
     command-chain:
     - bin/wayland-launch
-    - bin/graphics-core22-wrapper
+    - bin/gpu-2404-wrapper
     command: bin/quake2
     plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-gles3:
@@ -51,7 +51,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
     command-chain:
     - bin/wayland-launch
-    - bin/graphics-core22-wrapper
+    - bin/gpu-2404-wrapper
     command: bin/quake2
     plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-launch:
@@ -60,7 +60,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
     command-chain:
     - bin/wayland-launch
-    - bin/graphics-core22-wrapper
+    - bin/gpu-2404-wrapper
     command: bin/yquake2-launch
     plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   yquake2-gles3-launch:
@@ -70,7 +70,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
     command-chain:
     - bin/wayland-launch
-    - bin/graphics-core22-wrapper
+    - bin/gpu-2404-wrapper
     command: bin/yquake2-launch
     plugs: [ wayland, x11, desktop, home, opengl, audio-playback, removable-media, network, joystick ]
   q2ded:
@@ -88,22 +88,12 @@ slots:
       - $SNAP
 
 plugs:
-  graphics-core22:
+  gpu-2404:
     interface: content
-    target: $SNAP/graphics
-    default-provider: mesa-core22
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
 
 layout:
-  /usr/share/libdrm:
-    bind: $SNAP/graphics/libdrm
-  /usr/share/drirc.d:
-    symlink: $SNAP/graphics/drirc.d
-  /usr/share/X11/XErrorDB:
-    symlink: $SNAP/graphics/X11/XErrorDB
-  /usr/share/X11/locale:
-    symlink: $SNAP/graphics/X11/locale
-  /usr/share/X11/xkb:
-    symlink: $SNAP/graphics/X11/xkb
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa
   /etc/alsa:
@@ -115,14 +105,14 @@ parts:
   quake2:
     source: https://github.com/yquake2/yquake2.git
     source-type: git
-    source-tag: QUAKE2_8_30
+    source-tag: QUAKE2_8_41
     plugin: cmake
     override-build: |
       mkdir build && cd build
-      cmake $SNAPCRAFT_PART_SRC -DCMAKE_INSTALL_PREFIX=
+      cmake $CRAFT_PART_SRC -DCMAKE_INSTALL_PREFIX=
       make -j4
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      mv release/* $SNAPCRAFT_PART_INSTALL/bin/
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      mv release/* $CRAFT_PART_INSTALL/bin/
     override-prime: |
       craftctl default
       mv $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf.bak
@@ -172,12 +162,12 @@ parts:
     override-build: |
       # The plugs needed to run Wayland. (wayland-launch checks them, setup.sh connects them)
       # You may add further plugs here if you want these options
-      PLUGS="opengl wayland graphics-core22"
+      PLUGS="opengl wayland gpu-2404"
       sed --in-place "s/%PLUGS%/$PLUGS/g" $SNAPCRAFT_PART_BUILD/wayland-launch
       sed --in-place "s/%PLUGS%/$PLUGS/g" $SNAPCRAFT_PART_BUILD/setup.sh
       sed --in-place "s/%SNAP%/$SNAPCRAFT_PROJECT_NAME/g" $SNAPCRAFT_PART_BUILD/wayland-launch
       sed --in-place "s/%SNAP%/$SNAPCRAFT_PROJECT_NAME/g" $SNAPCRAFT_PART_BUILD/setup.sh
-      snapcraftctl build
+      craftctl default
     stage-packages:
       - inotify-tools
     organize:
@@ -185,12 +175,12 @@ parts:
       wayland-launch: bin/wayland-launch
       setup.sh: bin/setup.sh
     after: [ quake2 ]
-  graphics-core22:
+  gpu-2404:
     after: [ wrapper ]
-    source: https://github.com/MirServer/graphics-core22.git
+    source: https://github.com/canonical/gpu-snap.git
     plugin: dump
     override-prime: |
       craftctl default
-      ${CRAFT_PART_SRC}/bin/graphics-core22-cleanup mesa-core22 nvidia-core22
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404 nvidia-2404
     prime:
-    - bin/graphics-core22-wrapper
+      - bin/gpu-2404-wrapper
