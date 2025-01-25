@@ -113,11 +113,6 @@ parts:
       make -j4
       mkdir -p $CRAFT_PART_INSTALL/bin
       mv release/* $CRAFT_PART_INSTALL/bin/
-    override-prime: |
-      craftctl default
-      mv $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf.bak
-      rm $CRAFT_PRIME/etc/alsa/conf.d/*.conf
-      mv $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf.bak $CRAFT_PRIME/etc/alsa/conf.d/50-pulseaudio.conf
     build-packages:
       - make
       - build-essential
@@ -151,11 +146,6 @@ parts:
       - libopenal-data
       - zlib1g
       - zenity
-    prime:
-      - bin/
-      - lib/
-      - usr/
-      - etc/
   wrapper:
     source: snap/local
     plugin: dump
